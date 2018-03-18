@@ -5,6 +5,11 @@
 #include "main.h"
 
 #define FAILED -1
+#define SUCCESS 1
+#define BLOCKED 2
+#define NOT_BLOCKED 3
+#define READIED 4
+#define NOT_READIED 5
 
 SEMAPHORE semaphores[5];
 
@@ -143,11 +148,116 @@ int new_semaphore(int semaphoreId, int initValue) {
 }
 
 void semaphore_p_routine() {
-    printf("Not yet implemented.\n");
+    // Get semaphore id
+    printf("Enter semaphore (P) id between %d and %d: ", 0, 4);
+    int semaphoreId = get_input_bounded_int(0, 4);
+
+    SEMAPHORE_OUTPUT output = semaphore_p(semaphoreId);
+
+    if(output.result == SUCCESS) {
+        if(output.status == BLOCKED) {
+            printf("Process %d blocked.\n", output.pid_affected);
+        }
+    }
+}
+
+SEMAPHORE_OUTPUT semaphore_p(int semaphoreId) {
+    SEMAPHORE_OUTPUT output;
+    output.pid_affected = FAILED;
+    output.status = FAILED;
+    output.result = FAILED;
+
+    // Check if number was out of bounds
+    if(semaphoreId == FAILED) {
+        printf("Invalid semaphore id.\n");
+        return output;
+    }
+
+    SEMAPHORE semaphore = semaphores[semaphoreId];
+
+    // Check if semaphore has already been added
+    if(semaphore.init == 0) {
+        printf("Semaphore %d does not exist.\n", semaphoreId);
+        return output;
+    }
+
+    // Decrease semaphore value by 1
+    semaphore.value--;
+
+    if(semaphore.value < 0) {
+        //TO:DO check that runningProcess is not init
+
+
+        // Add current process to block list
+        ListAppend(semaphore.blockedProcesses, runningProcess);
+        // Block the current process
+        //TO:DO let next process take its turn
+
+        //output.pid_affected = runningProcess.pid;
+        output.status = BLOCKED;
+        output.result = SUCCESS;
+        return output;
+    }
+    else {
+        output.status = NOT_BLOCKED;
+        output.result = SUCCESS;
+        return output;
+    }
 }
 
 void semaphore_v_routine() {
-    printf("Not yet implemented.\n");
+    // Get semaphore id
+    printf("Enter semaphore (V) id between %d and %d: ", 0, 4);
+    int semaphoreId = get_input_bounded_int(0, 4);
+
+    SEMAPHORE_OUTPUT output = semaphore_v(semaphoreId);
+
+    if(output.result == SUCCESS) {
+        if(output.status == READIED) {
+            printf("Process %d readied.\n", output.pid_affected);
+        }
+    }
+}
+
+SEMAPHORE_OUTPUT semaphore_v(int semaphoreId) {
+    SEMAPHORE_OUTPUT output;
+    output.pid_affected = FAILED;
+    output.status = FAILED;
+    output.result = FAILED;
+
+    // Check if number was out of bounds
+    if(semaphoreId == FAILED) {
+        printf("Invalid semaphore id.\n");
+        return output;
+    }
+
+    SEMAPHORE semaphore = semaphores[semaphoreId];
+
+    // Check if semaphore has already been added
+    if(semaphore.init == 0) {
+        printf("Semaphore %d does not exist.\n", semaphoreId);
+        return output;
+    }
+
+    // Increase semaphore value by 1
+    semaphore.value++;
+
+    // Unblock and ready a process
+    if(semaphore.value <= 0) {
+        // Check if there are any blocked processes
+        if(ListCount(semaphore.blockedProcesses) > 0) {
+            PCB * unblockedProcess = ListFirst(semaphore.blockedProcesses);
+            // TO:DO enqueue unblockedProcess
+            output.pid_affected = unblockedProcess->pid;
+            output.status = READIED;
+            output.result = SUCCESS;
+            return output;
+        } 
+    }
+    
+    output.status = NOT_READIED;
+    output.result = SUCCESS;
+    return output;
 }
 
 void procinfo_routine() {

@@ -5,7 +5,7 @@
 #include "enum_priority.h"
 
 
-typedef struct {
+typedef struct PCB {
     int pid;
     int priority;
     int state;
@@ -18,7 +18,13 @@ typedef struct {
     LIST * blockedProcesses;
 } SEMAPHORE;
 
-PCB runningProcess;
+typedef struct {
+    int pid_affected;
+    int status;
+    int result;
+} SEMAPHORE_OUTPUT;
+
+PCB * runningProcess;
 LIST * readyQueue;
 LIST * blockedQueue;
 
@@ -80,13 +86,13 @@ int new_semaphore(int semaphoreId, int initValue);
 // Execute semaphore P on behalf of current running process
 // Returns blocked status (blocked or not)
 // Returns 1 on success, -1 on fail
-int semaphore_p(int semaphore);
+SEMAPHORE_OUTPUT semaphore_p(int semaphoreId);
 
 // TO:DO needs struct
 // Execute semaphore V on behalf of current running process
 // Returns (whether/which) process was readied
 // Returns 1 on success, -1 on fail
-int semaphore_v(int semaphore);
+SEMAPHORE_OUTPUT semaphore_v(int semaphoreId);
 
 // Dump complete state information of process to screen
 // Includes process status, etc
