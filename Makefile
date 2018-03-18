@@ -9,7 +9,7 @@ pcbsim: $(OBJS)
 list.o: list.c list.h
 	$(CC) $(CFLAGS) -c list.c
 
-main.o: main.c
+main.o: main.c main.h enum_priority.h
 	$(CC) $(CFLAGS) -c main.c
 
 clean:

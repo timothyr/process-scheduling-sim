@@ -2,6 +2,7 @@
 #define MAIN_H
 
 #include "list.h"
+#include "enum_priority.h"
 
 
 typedef struct {
@@ -11,6 +12,12 @@ typedef struct {
     char * proc_message;
 } PCB;
 
+typedef struct {
+    int init;
+    int value;
+    LIST * blockedProcesses;
+} SEMAPHORE;
+
 PCB runningProcess;
 LIST * readyQueue;
 LIST * blockedQueue;
@@ -18,7 +25,7 @@ LIST * blockedQueue;
 // Creates a new process and puts it on the appropriate ready queue.
 // Priority = 0 (high), 1 (norm), 2 (low)
 // Returns pid on success, -1 on fail
-int create_process(int priority);
+int create_process(Priority priority);
 
 // Copy the currently running process and put it on the ready queue w/ original priority
 // Attempting to Fork the 'init' process should fail
@@ -32,7 +39,7 @@ int kill_process(int pid);
 
 // Kill the currently running process
 // Returns pid of the process that gets control of CPU after
-int exit();
+int exit_process();
 
 // Expire the time quantum of the running process
 // The current process will return to end of ready queue
@@ -67,7 +74,7 @@ int reply(int pid, char *msg);
 // Constraint: int initValue must be >= 0
 // semaphore id must be unique (no duplicates)
 // Returns semaphore id, -1 on fail
-int new_semaphore(int semaphore, int initValue);
+int new_semaphore(int semaphoreId, int initValue);
 
 // TO:DO needs struct
 // Execute semaphore P on behalf of current running process
