@@ -9,9 +9,9 @@ typedef struct {
     int priority;
     int state;
     char * proc_message;
-} PROCESS;
+} PCB;
 
-PROCESS runningProcess;
+PCB runningProcess;
 LIST * readyQueue;
 LIST * blockedQueue;
 
