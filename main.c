@@ -4,14 +4,17 @@
 
 #include "scheduler.h"
 
+// ********** Input
+
 char get_input() {
     char command;
     while((command = getchar()) == EOF || command == '\n'); // ignore EOF and \n
+    printf("\n");
     return command;
 }
 
 char get_input_command() {
-    printf("Enter next command: ");
+    printf("\n(pcbsim): ");
     return get_input(); 
 }
 
@@ -46,14 +49,17 @@ Priority get_input_priority() {
     }
 }
 
-// ****** Create
+// ********** Routines
 
 void create_process_routine() {
     enum Priority newProcessPriority = get_input_priority();
-    create_process(newProcessPriority);
+    int result = create_process(newProcessPriority);
+    if(result == FAILED) {
+        printf("Cannot create process - invalid priority.\n");
+    } else {
+        printf("Created process %d\n", result);
+    }
 }
-
-// ****** Fork
 
 void fork_process_routine() {
     printf("Not yet implemented.\n");
@@ -68,22 +74,27 @@ void exit_routine() {
 }
 
 void quantum_routine() {
-    printf("Not yet implemented.\n");
+    int result = quantum();
+    if(result != INIT_PCB_PID) {
+        //printf("Process %d is now running.\n", result);
+    }
 }
 
 void send_routine() {
-    printf("Not yet implemented.\n");
+    printf("Enter the pid of process to send to: ");
+    int pid = get_input_unbounded_int();
+
+    send(pid, NULL);
 }
 
 void receive_routine() {
-    printf("Not yet implemented.\n");
+    int result = receive();
 }
 
 void reply_routine() {
     printf("Not yet implemented.\n");
 }
 
-// ********** New Semaphore
 void new_semaphore_routine() {
     // Get new semaphore id
     printf("Enter a new semaphore id between %d and %d: ", 0, 4);
@@ -101,7 +112,6 @@ void new_semaphore_routine() {
     }
 }
 
-
 void semaphore_p_routine() {
     // Get semaphore id
     printf("Enter semaphore (P) id between %d and %d: ", 0, 4);
@@ -111,7 +121,7 @@ void semaphore_p_routine() {
 
     if(output.result == SUCCESS) {
         if(output.status == BLOCKED) {
-            printf("Process %d blocked.\n", output.pid_affected);
+            //printf("Process %d blocked.\n", output.pid_affected);
         }
     }
 }
@@ -130,7 +140,6 @@ void semaphore_v_routine() {
     }
 }
 
-
 void procinfo_routine() {
     printf("Not yet implemented.\n");
 }
@@ -145,7 +154,7 @@ void print_help() {
     printf("(N)ew Semaphore, Semaphore (P), Semaphore (V), Proc(I)nfo, (T)otalInfo\n");
 }
 
-
+// ********** Main
 
 int main (int argc, char *argv[])
 {

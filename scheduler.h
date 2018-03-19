@@ -8,6 +8,8 @@
 #define FAILED -1
 #define SUCCESS 1
 
+#define MAX_MESSAGE_SIZE 40
+
 // Semaphore P
 #define BLOCKED 2
 #define NOT_BLOCKED 3
@@ -16,11 +18,21 @@
 #define READIED 4
 #define NOT_READIED 5
 
+// Search
+#define ACTION_KEEP 0
+#define ACTION_DELETE 1
+
+// Send/Receive/Reply flag
+#define MESSAGE_WAITING 1
+#define MESSAGE_IDLE 2
+
+// The init process pid
 #define INIT_PCB_PID 0
 
 typedef struct PCB {
     int pid;
     Priority priority;
+    int waitingForMsg;
     char * proc_message;
 } PCB;
 
@@ -35,10 +47,6 @@ typedef struct {
     int status;
     int result;
 } SEMAPHORE_OUTPUT;
-
-PCB * runningProcess;
-LIST * readyQueue;
-LIST * blockedProcesses;
 
 // Initialize
 void init_sim();
@@ -97,13 +105,11 @@ int reply(int pid, char *msg);
 // Returns semaphore id, -1 on fail
 int new_semaphore(int semaphoreId, int initValue);
 
-// TO:DO needs struct
 // Execute semaphore P on behalf of current running process
 // Returns blocked status (blocked or not)
 // Returns 1 on success, -1 on fail
 SEMAPHORE_OUTPUT semaphore_p(int semaphoreId);
 
-// TO:DO needs struct
 // Execute semaphore V on behalf of current running process
 // Returns (whether/which) process was readied
 // Returns 1 on success, -1 on fail
